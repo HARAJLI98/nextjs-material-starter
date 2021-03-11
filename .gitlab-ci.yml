@@ -1,0 +1,56 @@
+build and push dev latest:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    # Setup ENV File
+    - touch .env.local
+    - echo APP_ROOT_URL=https://guardianscore.platinumx.io >> .env.local
+    - echo APP_LOGIN_REDIRECT_URL=/home >> .env.local
+    - echo NEXT_PUBLIC_HASURA_GRAPHQL_URI=https://hasura-guardianscore.platinumx.io/v1/graphql >> .env.local
+
+    # Docker build
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - cat /kaniko/.docker/config.json
+    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE
+  only:
+    - master
+
+build and push demo latest:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    # Setup ENV File
+    - touch .env.local
+    - echo APP_ROOT_URL=https://demo-guardianscore.platinumx.io >> .env.local
+    - echo APP_LOGIN_REDIRECT_URL=/home >> .env.local
+    - echo NEXT_PUBLIC_HASURA_GRAPHQL_URI=https://demo-hasura-guardianscore.platinumx.io/v1/graphql >> .env.local
+
+    # Docker build
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - cat /kaniko/.docker/config.json
+    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:demo-latest
+  only:
+    - demo
+
+build and push tag:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    # Setup ENV File
+    - touch .env.local
+    - echo APP_ROOT_URL=https://guardianscore.platinumx.io >> .env.local
+    - echo APP_LOGIN_REDIRECT_URL=/home >> .env.local
+    - echo NEXT_PUBLIC_HASURA_GRAPHQL_URI=https://hasura-guardianscore.platinumx.io/v1/graphql >> .env.local
+
+    # Docker build
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - cat /kaniko/.docker/config.json
+    - /kaniko/executor --cache=true --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  only:
+    - tags
